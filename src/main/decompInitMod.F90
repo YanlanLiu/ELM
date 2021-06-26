@@ -322,18 +322,19 @@ contains
     deallocate(gindex)
 
     ! Diagnostic output
-
-    if (masterproc) then
-       write(iulog,*)' Surface Grid Characteristics'
-       write(iulog,*)'   longitude points               = ',lni
-       write(iulog,*)'   latitude points                = ',lnj
-       write(iulog,*)'   total number of land gridcells = ',numg
-       write(iulog,*)' Decomposition Characteristics'
-       write(iulog,*)'   clumps per process             = ',clump_pproc
-       write(iulog,*)' gsMap Characteristics'
-       write(iulog,*) '  lnd gsmap glo num of segs      = ',mct_gsMap_ngseg(gsMap_lnd_gdc2glo)
-       write(iulog,*)
-    end if
+    !YL--------
+    ! if (masterproc) then
+     write(iulog,*)' Surface Grid Characteristics'
+     write(iulog,*)'   longitude points               = ',lni
+     write(iulog,*)'   latitude points                = ',lnj
+     write(iulog,*)'   total number of land gridcells = ',numg
+     write(iulog,*)' Decomposition Characteristics'
+     write(iulog,*)'   clumps per process             = ',clump_pproc
+     write(iulog,*)' gsMap Characteristics'
+     write(iulog,*) '  lnd gsmap glo num of segs      = ',mct_gsMap_ngseg(gsMap_lnd_gdc2glo)
+     write(iulog,*)
+    ! end if
+    !----------
 
     call shr_sys_flush(iulog)
 

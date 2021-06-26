@@ -547,9 +547,12 @@ contains
             
          enddo
 
-         if(debug)then
-            write(iulog,*) 'alm_fates%init(): thread',nc,': allocated ',s,' sites'
-         end if
+         !YL--------
+         !if(debug)then
+         !   write(iulog,*) 'alm_fates%init(): thread',nc,': allocated ',s,' sites'
+         !end if
+         write(iulog,*) 'alm_fates%init(): thread',nc,': allocated ',s,' sites'
+         !----------
 
          ! Allocate vectors that match FATES sites with HLM columns
          ! RGK: Sites and fcolumns are forced as args during clm_driv() as of 6/4/2016
@@ -690,7 +693,7 @@ contains
          top_af_inst, atm2lnd_inst, soilstate_inst, temperature_inst, &
          canopystate_inst, frictionvel_inst )
 
-    
+
       ! This wrapper is called daily from clm_driver
       ! This wrapper calls ed_driver, which is the daily dynamics component of FATES
       ! ed_driver is not a hlm_fates_inst_type procedure because we need an extra step 
@@ -719,6 +722,10 @@ contains
       !-----------------------------------------------------------------------
 
       nc = bounds_clump%clump_index
+
+      !YL-----------
+      write(iulog,*) 'nc = ',nc
+      !-------------
 
       ! ---------------------------------------------------------------------------------
       ! Part I.
@@ -799,7 +806,7 @@ contains
             call ed_update_site(this%fates(nc)%sites(s), &
                   this%fates(nc)%bc_in(s), & 
                   this%fates(nc)%bc_out(s))
-            
+            write(iulog,*) 's, this%fates(nc)%bc_out(s)%seed_out', s, this%fates(nc)%bc_out(s)%seed_out 
       enddo
 
       ! ---------------------------------------------------------------------------------
