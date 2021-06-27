@@ -174,6 +174,7 @@ module elm_driver
   use clm_time_manager            , only : is_end_curr_year, is_end_curr_month
   use decompMod                   , only : get_proc_global
   use FatesInterfaceTypesMod      , only : numpft_fates => numpft
+  use spmdMod                     , only : MPI_REAL8, MPI_SUM, mpicom
   !--------
 
   !
@@ -239,7 +240,6 @@ contains
     integer              :: numg                    ! total number of gridcells across allprocessors
     real(r8),    pointer :: seed_od_long(:,:)       ! seed_od array for all grid cells,pfts
     real(r8),    pointer :: seed_od_global(:,:)     ! seed_od array for all grid cells, pfts
-    
     call get_proc_global(ng=numg)
     write(iulog,*)'numg', numg
     !-----------
@@ -1294,7 +1294,8 @@ contains
                do s = 1, alm_fates%fates(nc)%nsites
                   c = alm_fates%f2hmap(nc)%fcolumn(s)
                   g = col_pp%gridcell(c)
-                  ! write(iulog,*) 'seed_od_long(g,:): ', seed_od_long(g,:)
+                  write(iulog,*) 'seed_od_long(g,:): ', seed_od_long(g,:)
+
                   do pft = 1, numpft_fates
                      seed_od_long(g,pft) = seed_od_long(g,pft) + alm_fates%fates(nc)%bc_out(s)%seed_out(pft)
                   end do
@@ -1403,6 +1404,14 @@ contains
     end do
     !$OMP END PARALLEL DO
 
+    !YL-------
+    if (is_end_curr_month()) then
+        write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long, seed_od_global
+        call mpi_allreduce(seed_od_long, seed_od_global, numg, MPI_REAL8, MPI_SUM, mpicom, ier)
+        write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long,seed_od_global
+    endif
+    !---------
+
     ! ============================================================================
     ! Determine gridcell averaged properties to send to atm
     ! ============================================================================
@@ -1437,7 +1446,7 @@ contains
        call t_stopf('lnd2glc')
     end if
 
-    ! ============================================================================
+    ! =============seed==============================================================
     ! Write global average diagnostics to standard output
     ! ============================================================================
 
