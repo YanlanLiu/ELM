@@ -711,6 +711,9 @@ contains
       type(frictionvel_type)  , intent(inout)        :: frictionvel_inst
 
       ! !LOCAL VARIABLES:
+      !YL-------
+      integer  :: g                        ! gridcell index
+      !---------
       integer  :: s                        ! site index
       integer  :: c                        ! column index (HLM)
       integer  :: t                        ! topounit index (HLM)
@@ -798,7 +801,7 @@ contains
       ! ---------------------------------------------------------------------------------
 
       do s = 1,this%fates(nc)%nsites
-
+           
             call ed_ecosystem_dynamics(this%fates(nc)%sites(s),    &
                   this%fates(nc)%bc_in(s), & 
                   this%fates(nc)%bc_out(s))
@@ -806,7 +809,12 @@ contains
             call ed_update_site(this%fates(nc)%sites(s), &
                   this%fates(nc)%bc_in(s), & 
                   this%fates(nc)%bc_out(s))
-            write(iulog,*) 's, this%fates(nc)%bc_out(s)%seed_out', s, this%fates(nc)%bc_out(s)%seed_out 
+
+            !YL----------
+            !c = this%f2hmap(nc)%fcolumn(s)
+            !g = col_pp%gridcell(c)
+            !write(iulog,*) 's, c, p, this%fates(nc)%bc_out(s)%seed_out', s, c, p, this%fates(nc)%bc_out(s)%seed_out 
+            !------------
       enddo
 
       ! ---------------------------------------------------------------------------------

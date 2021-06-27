@@ -208,7 +208,10 @@ contains
     ! !LOCAL VARIABLES:
     integer              :: nstep                   ! time step number
     real(r8)             :: dtime                   ! land model time step (sec)
-    integer              :: nc, c, p, l, g          ! indices
+    !YL---------
+    !integer              :: nc, c, p, l, g          ! indices
+    integer              :: nc, s, c, p, l, g       ! indices
+    !----------
     integer              :: nclumps                 ! number of clumps on this processor
     integer              :: yrp1                    ! year (0, ...) for nstep+1
     integer              :: monp1                   ! month (1, ..., 12) for nstep+1
@@ -1258,6 +1261,12 @@ contains
                call alm_fates%dynamics_driv( bounds_clump, top_as,          &
                     top_af, atm2lnd_vars, soilstate_vars, temperature_vars, &
                     canopystate_vars, frictionvel_vars)
+               !YL------
+               write(iulog,*) 'nc,alm_fates%fates(nc)%nsites: ', nc, alm_fates%fates(nc)%nsites
+               do s = 1,alm_fates%fates(nc)%nsites
+                   write(iulog,*) 's, alm_fates%fates(nc)%bc_out(s): ',s, alm_fates%fates(nc)%bc_out(s)%seed_out
+               end do
+               !--------
            end if
        end if
        
