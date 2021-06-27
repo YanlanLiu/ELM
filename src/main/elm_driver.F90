@@ -170,6 +170,12 @@ module elm_driver
   use elm_varctl                  , only : do_budgets, budget_inst, budget_daily, budget_month
   use elm_varctl                  , only : budget_ann, budget_ltann, budget_ltend
 
+  !YL-------
+  use clm_time_manager            , only : is_end_curr_year, is_end_curr_month
+  use decompMod                   , only : get_proc_global
+  use FatesInterfaceTypesMod      , only : numpft_fates => numpft
+  !--------
+
   !
   ! !PUBLIC TYPES:
   implicit none
@@ -208,9 +214,7 @@ contains
     ! !LOCAL VARIABLES:
     integer              :: nstep                   ! time step number
     real(r8)             :: dtime                   ! land model time step (sec)
-    !YL---------
-    !integer              :: nc, c, p, l, g          ! indices
-    integer              :: nc, s, c, p, l, g       ! indices
+    integer              :: nc, c, p, l, g          ! indices
     !----------
     integer              :: nclumps                 ! number of clumps on this processor
     integer              :: yrp1                    ! year (0, ...) for nstep+1
@@ -229,6 +233,17 @@ contains
     character(len=256)   :: dateTimeString
     type(bounds_type)    :: bounds_clump    
     type(bounds_type)    :: bounds_proc     
+
+    !YL---------
+    integer              :: s, pft                   ! indices
+    integer              :: numg                    ! total number of gridcells across allprocessors
+    real(r8),    pointer :: seed_od_long(:,:)       ! seed_od array for all grid cells,pfts
+    real(r8),    pointer :: seed_od_global(:,:)     ! seed_od array for all grid cells, pfts
+    
+    call get_proc_global(ng=numg)
+    write(iulog,*)'numg', numg
+    !-----------
+
     !-----------------------------------------------------------------------
 
     call get_curr_time_string(dateTimeString)
@@ -1262,12 +1277,32 @@ contains
                     top_af, atm2lnd_vars, soilstate_vars, temperature_vars, &
                     canopystate_vars, frictionvel_vars)
                !YL------
-               write(iulog,*) 'nc,alm_fates%fates(nc)%nsites: ', nc, alm_fates%fates(nc)%nsites
-               do s = 1,alm_fates%fates(nc)%nsites
-                   write(iulog,*) 's, alm_fates%fates(nc)%bc_out(s): ',s, alm_fates%fates(nc)%bc_out(s)%seed_out
-               end do
+               !write(iulog,*) 'nc,alm_fates%fates(nc)%nsites: ', nc, alm_fates%fates(nc)%nsites
+               !do s = 1,alm_fates%fates(nc)%nsites
+               !    write(iulog,*) 's, alm_fates%fates(nc)%bc_out(s): ',s, alm_fates%fates(nc)%bc_out(s)%seed_out
+               !end do
                !--------
            end if
+
+           !YL-------           
+           if (is_end_curr_month()) then
+               allocate(seed_od_long(numg,numpft_fates))
+               allocate(seed_od_global(numg,numpft_fates))
+               seed_od_long(:,:) = 0._r8
+               seed_od_global(:,:) = 1.e6_r8
+
+               do s = 1, alm_fates%fates(nc)%nsites
+                  c = alm_fates%f2hmap(nc)%fcolumn(s)
+                  g = col_pp%gridcell(c)
+                  ! write(iulog,*) 'seed_od_long(g,:): ', seed_od_long(g,:)
+                  do pft = 1, numpft_fates
+                     seed_od_long(g,pft) = seed_od_long(g,pft) + alm_fates%fates(nc)%bc_out(s)%seed_out(pft)
+                  end do
+               end do
+
+               write(iulog,*) 'seed_od_long', seed_od_long
+           end if
+           !---------
        end if
        
        if (use_cn .and. doalb) then   
