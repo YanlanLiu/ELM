@@ -238,8 +238,8 @@ contains
     !YL---------
     integer              :: s, pft                   ! indices
     integer              :: numg                    ! total number of gridcells across allprocessors
-    real(r8),    pointer :: seed_od_long(:,:)       ! seed_od array for all grid cells,pfts
-    real(r8),    pointer :: seed_od_global(:,:)     ! seed_od array for all grid cells, pfts
+    real(r8),    pointer :: seed_od_long(:)       ! seed_od array for all grid cells,pfts
+    real(r8),    pointer :: seed_od_global(:)     ! seed_od array for all grid cells, pfts
     call get_proc_global(ng=numg)
     write(iulog,*)'numg', numg
     !-----------
@@ -1286,19 +1286,19 @@ contains
 
            !YL-------           
            if (is_end_curr_month()) then
-               allocate(seed_od_long(numg,numpft_fates))
-               allocate(seed_od_global(numg,numpft_fates))
-               seed_od_long(:,:) = 0._r8
-               seed_od_global(:,:) = 1.e6_r8
+               allocate(seed_od_long(numg))
+               allocate(seed_od_global(numg))
+               seed_od_long(:) = 0._r8
+               seed_od_global(:) = 1.e6_r8
 
                do s = 1, alm_fates%fates(nc)%nsites
                   c = alm_fates%f2hmap(nc)%fcolumn(s)
                   g = col_pp%gridcell(c)
-                  write(iulog,*) 'seed_od_long(g,:): ', seed_od_long(g,:)
+                  write(iulog,*) 'seed_od_long(g): ', seed_od_long(g)
 
-                  do pft = 1, numpft_fates
-                     seed_od_long(g,pft) = seed_od_long(g,pft) + alm_fates%fates(nc)%bc_out(s)%seed_out(pft)
-                  end do
+                  !do pft = 1, numpft_fates
+                  seed_od_long(g) = seed_od_long(g) + alm_fates%fates(nc)%bc_out(s)%seed_out(9)
+                  !end do
                end do
 
                write(iulog,*) 'seed_od_long', seed_od_long
