@@ -239,8 +239,10 @@ contains
     integer              :: s, pft                ! indices
     integer              :: numg                  ! total number of gridcells across allprocessors
     integer              :: g_id, g_od            ! gridcell indices in/out-dispersing cells
+    real(r8),    pointer :: neighbors_count(:)    ! complete grid cell array of count
     real(r8),    pointer :: seed_od_long(:)       ! seed_od array for all grid cells,pfts
     real(r8),    pointer :: seed_od_global(:)     ! seed_od array for all grid cells, pfts
+    real(r8),    pointer :: seed_id_global(:)       ! complete grid cell array of seed_id
     call get_proc_global(ng=numg)
     write(iulog,*)'numg', numg
     !-----------
@@ -1287,8 +1289,11 @@ contains
 
            !YL-------           
            if (is_end_curr_month()) then
+               allocate(seed_id_global(numg))
                allocate(seed_od_long(numg))
                allocate(seed_od_global(numg))
+
+               seed_id_global(:) = 0._r8
                seed_od_long(:) = 0._r8
                seed_od_global(:) = 1.e6_r8
 
@@ -1411,14 +1416,82 @@ contains
        write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long, seed_od_global
        call mpi_allreduce(seed_od_long, seed_od_global, numg, MPI_REAL8, MPI_SUM, mpicom, ier)
        write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long,seed_od_global
+
+
 !       write(iulog,*) 'ldecomp%ixy, ldecomp%jxy: ', ldecomp%ixy, ldecomp%jxy
+
+       allocate(neighbors_count(numg))
+       neighbors_count = 0._r8  ! initialize counter vector
+
        do g_od = 1, numg
-          if (seed_od_global(g_od) > 0._r8) then
+
+          if (seed_od_global(g_od) > 0._r8) then  ! consider finding neighbors only once rather than every month
              do g_id = 1, numg
-                 write(iulog,*) 'ldecomp%ixy(g_od),ldecomp%ixy(g_id): ', ldecomp%ixy(g_od),ldecomp%ixy(g_id)
-             end do
-          end if
-       end do
+                ! identify neighbors with the ixy, jxy indices of grid cells
+                if (ldecomp%ixy(g_od) == ldecomp%ixy(g_id) - 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) - 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) - 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id)     .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) - 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) + 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id)     .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) + 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) + 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) + 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) + 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id)     .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) + 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) - 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id)     .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) - 1) then
+                   neighbors_count(g_od) = neighbors_count(g_od) + 1 ! assuming all neighbors have equal weight
+                end if  ! find surrounding neighbors
+             end do ! g_id loop
+          end if ! (seed_od_global(g_od) > 0._r8)
+          
+
+          if (neighbors_count(g_od) > 0._r8) then
+             do g_id = 1, numg
+                if (ldecomp%ixy(g_od) == ldecomp%ixy(g_id) - 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) - 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) - 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id)     .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) - 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) + 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id)     .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) + 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) + 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) + 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) + 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id)     .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id) + 1 .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) - 1 .or. &
+
+                    ldecomp%ixy(g_od) == ldecomp%ixy(g_id)     .and.  &
+                    ldecomp%jxy(g_od) == ldecomp%jxy(g_id) - 1) then
+                   seed_id_global(g_id) = seed_id_global(g_id) + seed_od_global(g_od) / neighbors_count(g_od)
+
+                   ! diagnose seed exchange
+                   write(iulog,*) 'g_id, g_od, seed_od_global(g_od), neighbors_count(g_od), seed_id_global(g_id): ', g_id, g_od, seed_od_global(g_od), neighbors_count(g_od), seed_id_global(g_id)
+
+                end if  ! find surrounding neighbors
+             end do  ! g_id
+          end if  ! neighbors_count > 0
+
+       end do ! g_od loop
 
     endif    
     !---------
