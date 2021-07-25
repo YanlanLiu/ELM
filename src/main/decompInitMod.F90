@@ -316,6 +316,7 @@ contains
           !YL------
           ldecomp%ixy(ag) = ai
           ldecomp%jxy(ag) = aj
+          !write(iulog,*) 'ldecomp%ixy(ag), ldecomp%jxy(ag): ', ldecomp%ixy(ag), ldecomp%jxy(ag)
           !--------
           clumpcnt(cid) = clumpcnt(cid) + 1
        end if

@@ -172,7 +172,7 @@ module elm_driver
 
   !YL-------
   use clm_time_manager            , only : is_end_curr_year, is_end_curr_month
-  use decompMod                   , only : get_proc_global
+  use decompMod                   , only : ldecomp, get_proc_global
   use FatesInterfaceTypesMod      , only : numpft_fates => numpft
   use spmdMod                     , only : MPI_REAL8, MPI_SUM, mpicom
   !--------
@@ -1407,20 +1407,20 @@ contains
 
     !YL-------
     if (is_end_curr_month()) then
+
        write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long, seed_od_global
        call mpi_allreduce(seed_od_long, seed_od_global, numg, MPI_REAL8, MPI_SUM, mpicom, ier)
        write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long,seed_od_global
-    endif
-    
+!       write(iulog,*) 'ldecomp%ixy, ldecomp%jxy: ', ldecomp%ixy, ldecomp%jxy
+       do g_od = 1, numg
+          if (seed_od_global(g_od) > 0._r8) then
+             do g_id = 1, numg
+                 write(iulog,*) 'ldecomp%ixy(g_od),ldecomp%ixy(g_id): ', ldecomp%ixy(g_od),ldecomp%ixy(g_id)
+             end do
+          end if
+       end do
 
-    do g_od = 1, numg
-       if (seed_od_glob(g_od) > 0._r8) then
-          do g_id = 1, ng
-             write(iulog,*) 'ldecomp%ixy(g_od),ldecomp%jxy(g_od),ldecomp%ixy(g_id),ldecomp%jxy(g_id)', ldecomp%ixy(g_od),ldecomp%jxy(g_od),ldecomp%ixy(g_id),ldecomp%jxy(g_id)
-          end do
-       end if
-    end do
-               
+    endif    
     !---------
 
     ! ============================================================================
