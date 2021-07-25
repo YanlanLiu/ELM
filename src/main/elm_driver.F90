@@ -236,8 +236,9 @@ contains
     type(bounds_type)    :: bounds_proc     
 
     !YL---------
-    integer              :: s, pft                   ! indices
-    integer              :: numg                    ! total number of gridcells across allprocessors
+    integer              :: s, pft                ! indices
+    integer              :: numg                  ! total number of gridcells across allprocessors
+    integer              :: g_id, g_od            ! gridcell indices in/out-dispersing cells
     real(r8),    pointer :: seed_od_long(:)       ! seed_od array for all grid cells,pfts
     real(r8),    pointer :: seed_od_global(:)     ! seed_od array for all grid cells, pfts
     call get_proc_global(ng=numg)
@@ -1406,10 +1407,20 @@ contains
 
     !YL-------
     if (is_end_curr_month()) then
-        write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long, seed_od_global
-        call mpi_allreduce(seed_od_long, seed_od_global, numg, MPI_REAL8, MPI_SUM, mpicom, ier)
-        write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long,seed_od_global
+       write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long, seed_od_global
+       call mpi_allreduce(seed_od_long, seed_od_global, numg, MPI_REAL8, MPI_SUM, mpicom, ier)
+       write(iulog,*) 'seed_od_long, seed_od_global: ', seed_od_long,seed_od_global
     endif
+    
+
+    do g_od = 1, numg
+       if (seed_od_glob(g_od) > 0._r8) then
+          do g_id = 1, ng
+             write(iulog,*) 'ldecomp%ixy(g_od),ldecomp%jxy(g_od),ldecomp%ixy(g_id),ldecomp%jxy(g_id)', ldecomp%ixy(g_od),ldecomp%jxy(g_od),ldecomp%ixy(g_id),ldecomp%jxy(g_id)
+          end do
+       end if
+    end do
+               
     !---------
 
     ! ============================================================================
