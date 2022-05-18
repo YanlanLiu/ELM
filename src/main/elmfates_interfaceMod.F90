@@ -208,6 +208,10 @@ module ELMFatesInterfaceMod
       procedure, public  :: ComputeRootSoilFlux
       procedure, public  :: wrap_hydraulics_drive
 
+      !YL----------
+      procedure, public  :: wrap_seed_dispersal
+      !------------
+
    end type hlm_fates_interface_type
 
    ! hlm_bounds_to_fates_bounds is not currently called outside the interface.
@@ -2122,7 +2126,43 @@ contains
 
  end subroutine wrap_canopy_radiation
 
+
+ !YL-------------
+ subroutine wrap_seed_dispersal(this,bounds_clump,seed_id_global)
+
+    ! This subroutine pass seed_id_global to bc_in and reset seed_out
+
+    ! Arguments
+    class(hlm_fates_interface_type), intent(inout) :: this
+    type(bounds_type),  intent(in)                 :: bounds_clump
+    real(r8),           intent(in)                 :: seed_id_global
+    ! Local Variables
+    integer  :: g                           ! global index of the host gridcell
+    integer  :: c                           ! global index of the host column
+    integer  :: s                           ! FATES site index
+    integer  :: nc                          ! clump index
+
+    nc = bounds_clump%clump_index
+    
+    do s = 1, this%fates(nc)%nsites
+       c = this%f2hmap(nc)%fcolumn(s)
+       g = col_pp%gridcell(c)
+       ! loop over pft. Disperse seeds for pft = 9 for now
+       write(iulog,*) 's, c, g, seed_id_global(g): ', s, c, g, seed_id_global(g)
+       write(iulog,*) 'BEFORE, this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
+       this%fates(nc)%bc_in(s)%seed_in(9) = seed_id_global(g)
+       this%fates(nc)%bc_out(s)%seed_out(9) = 0._r8 ! reset seed_out
+
+       write(iulog,*) 'AFTER, this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
+
+    end do
+
+ end subroutine wrap_seed_dispersal
+ !---------------
+
+
  ! ======================================================================================
+
 
  subroutine wrap_update_hifrq_hist(this, bounds_clump )
 

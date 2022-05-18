@@ -1534,6 +1534,15 @@ contains
     ! Write global average diagnostics to standard output
     ! ============================================================================
 
+    !YL-------------
+    if ( use_fates .and. is_end_curr_month() ) then
+       write(iulog,*) 'if ( use_fates .and. is_end_curr_month() ) then: seed_id_long = ', seed_id_global
+       call alm_fates%wrap_seed_dispersal(bounds_clump, seed_id_global)       
+    end if
+    !YL-------------
+
+
+
     nstep = get_nstep()
     if (wrtdia) call mpi_barrier(mpicom,ier)
     call t_startf('wrtdiag')
