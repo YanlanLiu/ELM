@@ -2150,7 +2150,8 @@ contains
        ! loop over pft. Disperse seeds for pft = 9 for now
        write(iulog,*) 's, c, g, seed_id_global(g): ', s, c, g, seed_id_global(g)
        write(iulog,*) 'BEFORE, this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
-       this%fates(nc)%bc_in(s)%seed_in(9) = seed_id_global(g)
+       this%fates(nc)%bc_in(s)%seed_in(9) = seed_id_global(g)/this%fates(nc)%nsites ! assuming equal area for all sites, seed_id_global in [kg/grid/day], seed_in in [kg/site/day]
+
        this%fates(nc)%bc_out(s)%seed_out(9) = 0._r8 ! reset seed_out
 
        write(iulog,*) 'AFTER, this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
