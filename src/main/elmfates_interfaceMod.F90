@@ -2135,7 +2135,7 @@ contains
     ! Arguments
     class(hlm_fates_interface_type), intent(inout) :: this
     type(bounds_type),  intent(in)                 :: bounds_clump
-    real(r8),           intent(in)                 :: seed_id_global
+    real(r8),           intent(in)                 :: seed_id_global(:)
     ! Local Variables
     integer  :: g                           ! global index of the host gridcell
     integer  :: c                           ! global index of the host column
