@@ -1535,8 +1535,7 @@ contains
     ! ============================================================================
 
     !YL-------------
-    if ( use_fates .and. is_end_curr_month() ) then
-       write(iulog,*) 'if ( use_fates .and. is_end_curr_month() ) then: seed_id_long = ', seed_id_global
+    if (use_fates) then
        call alm_fates%wrap_seed_dispersal(bounds_clump, seed_id_global)       
     end if
     !YL-------------
