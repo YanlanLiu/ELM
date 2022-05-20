@@ -1300,14 +1300,14 @@ contains
                do s = 1, alm_fates%fates(nc)%nsites
                   c = alm_fates%f2hmap(nc)%fcolumn(s)
                   g = col_pp%gridcell(c)
-                  write(iulog,*) 'seed_od_long(g): ', seed_od_long(g)
+                  !write(iulog,*) 'seed_od_long(g): ', seed_od_long(g)
 
                   !do pft = 1, numpft_fates
                   seed_od_long(g) = seed_od_long(g) + alm_fates%fates(nc)%bc_out(s)%seed_out(9)
                   !end do
                end do
 
-               write(iulog,*) 'seed_od_long', seed_od_long
+               !write(iulog,*) 'seed_od_long', seed_od_long
            end if
            !---------
        end if

@@ -2153,8 +2153,8 @@ contains
        c = this%f2hmap(nc)%fcolumn(s)
        g = col_pp%gridcell(c)
        ! loop over pft. Disperse seeds for pft = 9 for now
-       write(iulog,*) 's, c, g, seed_id_global(g): ', s, c, g, seed_id_global(g)
-       write(iulog,*) 'BEFORE, this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
+       !write(iulog,*) 's, c, g, seed_id_global(g): ', s, c, g, seed_id_global(g)
+       !write(iulog,*) 'BEFORE, this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
 
        ! need to devide seed_id_global by the number of sites in one grid
 
@@ -2188,12 +2188,12 @@ contains
        c = this%f2hmap(nc)%fcolumn(s)
        g = col_pp%gridcell(c)
        ! loop over pft. Disperse seeds for pft = 9 for now
-       write(iulog,*) 's, c, g: ', s, c, g
-       write(iulog,*) 'BEFORE, this%fates(nc)%bc_in(s)%seed_in(9),this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
+       !write(iulog,*) 's, c, g: ', s, c, g
+       !write(iulog,*) 'BEFORE, this%fates(nc)%bc_in(s)%seed_in(9),this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
 
        this%fates(nc)%bc_in(s)%seed_in(9) = 0 ! reset 
 
-       write(iulog,*) 'AFTER, this%fates(nc)%bc_in(s)%seed_in(9),this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
+       !write(iulog,*) 'AFTER, this%fates(nc)%bc_in(s)%seed_in(9),this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
 
     end do
 
