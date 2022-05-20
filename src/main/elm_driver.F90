@@ -1536,11 +1536,12 @@ contains
 
     !YL-------------
     if (use_fates) then
-       if (is_end_curr_month()) then
-          call alm_fates%wrap_seed_dispersal(bounds_clump,seed_id_global)       
-       else
-          call alm_fates%wrap_seed_dispersal_reset(bounds_clump)
-       end if
+       call alm_fates%wrap_seed_dispersal_reset(bounds_clump)
+       !if (is_end_curr_month()) then
+       !   call alm_fates%wrap_seed_dispersal(bounds_clump,seed_id_global)       
+       !else
+       !   call alm_fates%wrap_seed_dispersal_reset(bounds_clump)
+       !end if
     end if
     !YL-------------
 
