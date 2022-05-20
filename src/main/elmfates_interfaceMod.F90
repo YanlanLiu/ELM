@@ -84,6 +84,10 @@ module ELMFatesInterfaceMod
                                   is_beg_curr_day,   &
                                   get_step_size,     &
                                   get_nstep
+   !YL--------
+   ! use clm_time_manager  , only : is_end_curr_year, is_end_curr_month
+   !----------
+
    use spmdMod           , only : masterproc
    use decompMod         , only : get_proc_bounds,   &
                                   get_proc_clumps,   &
@@ -210,6 +214,7 @@ module ELMFatesInterfaceMod
 
       !YL----------
       procedure, public  :: wrap_seed_dispersal
+      procedure, public  :: wrap_seed_dispersal_reset
       !------------
 
    end type hlm_fates_interface_type
@@ -2151,20 +2156,49 @@ contains
        write(iulog,*) 's, c, g, seed_id_global(g): ', s, c, g, seed_id_global(g)
        write(iulog,*) 'BEFORE, this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
 
-       if (is_end_curr_month()) then
+       ! need to devide seed_id_global by the number of sites in one grid
 
-          this%fates(nc)%bc_in(s)%seed_in(9) = seed_id_global(g)/this%fates(nc)%nsites ! assuming equal area for all sites, seed_id_global in [kg/grid/day], seed_in in [kg/site/day]
-          this%fates(nc)%bc_out(s)%seed_out(9) = 0._r8 ! reset seed_out
-
-       else
-          this%fates(nc)%bc_in(s)%seed_in(9) = 0 ! reset 
-       end if
+       this%fates(nc)%bc_in(s)%seed_in(9) = seed_id_global(g)   !/this%fates(nc)%nsites ! assuming equal area for all sites, seed_id_global in [kg/grid/day], seed_in in [kg/site/day]
+       this%fates(nc)%bc_out(s)%seed_out(9) = 0._r8 ! reset seed_out
 
        write(iulog,*) 'AFTER, this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
 
     end do
 
  end subroutine wrap_seed_dispersal
+
+
+
+ subroutine wrap_seed_dispersal_reset(this,bounds_clump)
+
+    ! This subroutine reset seed_in
+
+    ! Arguments
+    class(hlm_fates_interface_type), intent(inout) :: this
+    type(bounds_type),  intent(in)                 :: bounds_clump
+    ! Local Variables
+    integer  :: g                           ! global index of the host gridcell
+    integer  :: c                           ! global index of the host column
+    integer  :: s                           ! FATES site index
+    integer  :: nc                          ! clump index
+
+    nc = bounds_clump%clump_index
+
+    do s = 1, this%fates(nc)%nsites
+       c = this%f2hmap(nc)%fcolumn(s)
+       g = col_pp%gridcell(c)
+       ! loop over pft. Disperse seeds for pft = 9 for now
+       write(iulog,*) 's, c, g: ', s, c, g
+       write(iulog,*) 'BEFORE, this%fates(nc)%bc_in(s)%seed_in(9),this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
+
+       this%fates(nc)%bc_in(s)%seed_in(9) = 0 ! reset 
+
+       write(iulog,*) 'AFTER, this%fates(nc)%bc_in(s)%seed_in(9),this%fates(nc)%bc_out(s)%seed_out(9): ', this%fates(nc)%bc_in(s)%seed_in(9), this%fates(nc)%bc_out(s)%seed_out(9)
+
+    end do
+
+ end subroutine wrap_seed_dispersal_reset
+
  !---------------
 
 
